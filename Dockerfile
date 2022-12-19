@@ -2,13 +2,17 @@ ARG VERSION=lts
 
 FROM node:$VERSION-alpine
 
-LABEL maintainer="Renoki Co. <alex@renoki.org>"
-
 ENV PYTHONUNBUFFERED=1
 
 COPY . /tmp/build
 
+RUN rm -rf /tmp/build/.git
+
 WORKDIR /tmp/build
+
+RUN apk update
+
+RUN npm install -g npm@8.6.0
 
 RUN apk add --no-cache --update git python3 gcompat && \
     apk add --virtual build-dependencies build-base gcc wget && \
@@ -24,6 +28,8 @@ RUN apk add --no-cache --update git python3 gcompat && \
 
 WORKDIR /app
 
-EXPOSE 6001
+EXPOSE 6001 9601
 
-ENTRYPOINT ["node", "/app/bin/server.js", "start"]
+ENTRYPOINT ["node", "/app/bin/server.js"]
+
+CMD ["start", "--config=/app/config/apps.conf"]
